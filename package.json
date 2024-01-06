@@ -1,16 +1,17 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "obsidian-paste-from-history",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "Plugin for Obsidian which adds the feature to paste from clipboard history",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
+		"lint": "eslint ./src/",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
 	"keywords": [],
-	"author": "",
-	"license": "MIT",
+	"author": "karakaz",
+	"license": "LGPL-3.0-or-later",
 	"devDependencies": {
 		"@types/node": "^16.11.6",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
@@ -20,8 +21,5 @@
 		"obsidian": "latest",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
-	},
-	"dependencies": {
-		"clipboard": "^2.0.11"
 	}
 }

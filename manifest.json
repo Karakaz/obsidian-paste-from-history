@@ -1,11 +1,11 @@
 {
-	"id": "clipboard-history-plugin",
+	"id": "paste-from-history-plugin",
 	"name": "Paste From History",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Adds the ability to paste from Obsidian's clipboard history.",
-	"author": "karakaz",
-	"authorUrl": "https://obsidian.md",
+	"description": "Adds the ability to paste text from the editor's clipboard history.",
+	"author": "Daniel Karakka",
+	"authorUrl": "https://github.com/Karakaz",
 	"fundingUrl": "https://obsidian.md/pricing",
 	"isDesktopOnly": false
 }
