@@ -12,7 +12,7 @@ Text you `copy` or `cut` will be tracked. You then have the ability to `paste` t
 
 Opens a menu displaying a list of recent clipboard texts which can be chosen to paste into the editor.
 
-**Hotkey**
+##### Hotkey
 I recommend the following, but choose a hotkey that fits well with your other hotkeys:
 
 -   Linux & Windows: Ctrl + Shift + V
