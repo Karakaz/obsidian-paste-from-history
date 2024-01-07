@@ -10,7 +10,7 @@
 
 .clipboardHistoryRecordText {
 	display: inline-block;
-	max-width: calc(min(50vw, 80ch));
+	max-width: calc(max(min(50vw, 80ch), 30vw));
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
