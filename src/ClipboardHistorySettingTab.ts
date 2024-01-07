@@ -19,15 +19,15 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Record limit")
-			.setDesc("Upper limit for the amount of clipboard records")
+			.setName("History limit")
+			.setDesc("Upper limit for the amount of tracked clipboard events")
 			.addSlider((slider) =>
 				slider
 					.setLimits(RECORD_LIMIT_MIN, RECORD_LIMIT_MAX, RECORD_LIMIT_STEP)
-					.setValue(this.plugin.settings.recordLimit)
+					.setValue(this.plugin.settings.historyLimit)
 					.setDynamicTooltip()
 					.onChange(async (value) => {
-						this.plugin.settings.recordLimit = value;
+						this.plugin.settings.historyLimit = value;
 						await this.plugin.saveSettings();
 					})
 			);

@@ -6,11 +6,11 @@ import { PasteFromClipboardHistoryCommand } from "./commands/PasteFromClipboardH
 import { ClearClipboardHistoryCommand } from "./commands/ClearClipboardHistoryCommand";
 
 interface ClipboardHistorySettings {
-	recordLimit: number;
+	historyLimit: number;
 }
 
 const DEFAULT_SETTINGS: ClipboardHistorySettings = {
-	recordLimit: 20,
+	historyLimit: 20,
 };
 
 export class ClipboardHistoryPlugin extends Plugin {
@@ -20,7 +20,7 @@ export class ClipboardHistoryPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new ClipboardHistorySettingTab(this.app, this));
-		this.clipboardHistoryService = new ClipboardHistoryService(this.settings.recordLimit);
+		this.clipboardHistoryService = new ClipboardHistoryService(this.settings.historyLimit);
 
 		this.registerDomEvent(document, "copy", () => this.recordTextFromClipboard());
 		this.registerDomEvent(document, "cut", () => this.recordTextFromClipboard());
@@ -31,7 +31,7 @@ export class ClipboardHistoryPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-        this.clipboardHistoryService.updateRecordLimit(this.settings.recordLimit);
+        this.clipboardHistoryService.updateRecordLimit(this.settings.historyLimit);
 	}
 
 	private async loadSettings() {
