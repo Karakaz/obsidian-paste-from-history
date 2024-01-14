@@ -9,49 +9,18 @@ export class PasteFromClipboardHistoryCommand implements Command {
 	name = "Paste from clipboard history";
 	icon: IconName = "clipboard-list";
 
+	displayedMenu?: Menu;
+
 	constructor(private clipboardHistoryService: ClipboardHistoryService) {}
 
 	editorCallback(editor: Editor, view: MarkdownView) {
-		// @ts-expect-error, not typed
-		const editorView = view.editor.cm as EditorView;
-		const cursor = editor.getCursor();
-		const cursorOffset = editor.posToOffset(cursor);
-		let position = this.getCursorPosition(cursorOffset, editorView);
-		if (!position) {
-			position = this.getNextAvailablePosition(cursor.line, editor, editorView);
+		if (this.displayedMenu) {
+			this.displayedMenu.close();
 		}
-		if (!position) {
-			position = this.getCenterPosition(editorView);
-		}
-		const menu = this.createMenu(editor);
-		menu.showAtPosition(position);
-	}
+		this.displayedMenu = this.createMenu(editor);
 
-	private getCursorPosition(cursorOffset: number, editorView: EditorView): MenuPositionDef | undefined {
-		const position = editorView.coordsAtPos(cursorOffset, -1);
-		if (position) {
-			return { x: position.left, y: position.bottom };
-		}
-	}
-
-	private getNextAvailablePosition(
-		cursorLine: number,
-		editor: Editor,
-		editorView: EditorView
-	): MenuPositionDef | undefined {
-		const lineCount = editor.lineCount();
-		for (let line = cursorLine + 1; line < lineCount; line++) {
-			const startOfLine = editor.posToOffset({ line: line, ch: 0 });
-			const position = editorView.coordsAtPos(startOfLine, -1);
-			if (position) {
-				return { x: position.left, y: position.top };
-			}
-		}
-	}
-
-	private getCenterPosition(editorView: EditorView): MenuPositionDef {
-		// @ts-expect-error, not typed
-		return { x: editorView.viewState.editorWidth / 2, y: editorView.viewState.editorHeight / 2 };
+		const position = this.findViableMenuPosition(view, editor);
+		this.displayedMenu.showAtPosition(position);
 	}
 
 	private createMenu(editor: Editor): Menu {
@@ -90,5 +59,47 @@ export class PasteFromClipboardHistoryCommand implements Command {
 		editor.replaceSelection(record.text);
 		this.clipboardHistoryService.refreshRecord(record);
 		navigator.clipboard.writeText(record.text);
+	}
+
+	private findViableMenuPosition(view: MarkdownView, editor: Editor) {
+		// @ts-expect-error, not typed
+		const editorView = view.editor.cm as EditorView;
+		const cursor = editor.getCursor();
+		const cursorOffset = editor.posToOffset(cursor);
+		let position = this.getCursorPosition(cursorOffset, editorView);
+		if (!position) {
+			position = this.getNextAvailablePosition(cursor.line, editor, editorView);
+		}
+		if (!position) {
+			position = this.getCenterPosition(editorView);
+		}
+		return position;
+	}
+
+	private getCursorPosition(cursorOffset: number, editorView: EditorView): MenuPositionDef | undefined {
+		const position = editorView.coordsAtPos(cursorOffset, -1);
+		if (position) {
+			return { x: position.left, y: position.bottom };
+		}
+	}
+
+	private getNextAvailablePosition(
+		cursorLine: number,
+		editor: Editor,
+		editorView: EditorView
+	): MenuPositionDef | undefined {
+		const lineCount = editor.lineCount();
+		for (let line = cursorLine + 1; line < lineCount; line++) {
+			const startOfLine = editor.posToOffset({ line: line, ch: 0 });
+			const position = editorView.coordsAtPos(startOfLine, -1);
+			if (position) {
+				return { x: position.left, y: position.top };
+			}
+		}
+	}
+
+	private getCenterPosition(editorView: EditorView): MenuPositionDef {
+		// @ts-expect-error, not typed
+		return { x: editorView.viewState.editorWidth / 2, y: editorView.viewState.editorHeight / 2 };
 	}
 }
