@@ -10,7 +10,7 @@ interface ClipboardHistorySettings {
 }
 
 const DEFAULT_SETTINGS: ClipboardHistorySettings = {
-	historyLimit: 20,
+	historyLimit: 16,
 };
 
 export class ClipboardHistoryPlugin extends Plugin {
@@ -31,7 +31,7 @@ export class ClipboardHistoryPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-        this.clipboardHistoryService.updateRecordLimit(this.settings.historyLimit);
+		this.clipboardHistoryService.updateRecordLimit(this.settings.historyLimit);
 	}
 
 	private async loadSettings() {

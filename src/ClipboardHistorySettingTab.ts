@@ -1,9 +1,9 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { ClipboardHistoryPlugin } from "./ClipboardHistoryPlugin";
 
-const RECORD_LIMIT_MIN = 5;
-const RECORD_LIMIT_MAX = 50;
-const RECORD_LIMIT_STEP = 5;
+const RECORD_LIMIT_MIN = 4;
+const RECORD_LIMIT_MAX = 40;
+const RECORD_LIMIT_STEP = 2;
 
 export class ClipboardHistorySettingTab extends PluginSettingTab {
 	plugin: ClipboardHistoryPlugin;

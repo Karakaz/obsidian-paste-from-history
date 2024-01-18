@@ -27,7 +27,7 @@ Removes all entries from the plugin's history of the clipboard.
 
 #### History limit
 
-You can adjust the limit of how many clipboard text events are tracked in the settings. The default is `20`.
+You can adjust the limit of how many clipboard text events are tracked in the settings. The default is `16`.
 
 ## Limitations
 
