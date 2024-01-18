@@ -1,5 +1,5 @@
 {
-	"id": "paste-from-history-plugin",
+	"id": "paste-from-history",
 	"name": "Paste From History",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
