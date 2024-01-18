@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-paste-from-history",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Plugin for Obsidian which adds the feature to paste from clipboard history",
 	"main": "main.js",
 	"scripts": {

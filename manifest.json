@@ -1,7 +1,7 @@
 {
 	"id": "paste-from-history",
 	"name": "Paste From History",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Adds the ability to paste text from the editor's clipboard history.",
 	"author": "Daniel Karakka",
