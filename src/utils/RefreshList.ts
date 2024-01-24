@@ -21,10 +21,10 @@ export class RefreshList<T> {
 		return [...this.elements];
 	}
 
-    /**
-     * Moves existing element to start of the list
-     * @returns `true` if element exists in the list, `false` otherwise
-     */
+	/**
+	 * Moves existing element to start of the list
+	 * @returns `true` if element exists in the list, `false` otherwise
+	 */
 	refresh(element: T): boolean {
 		const index = this.elements.findIndex((e) => this.equalityCheck(e, element));
 		if (index > 0) {
@@ -44,7 +44,7 @@ export class RefreshList<T> {
 		}
 	}
 
-    clear() {
-        this.elements = [];
-    }
+	clear() {
+		this.elements = [];
+	}
 }

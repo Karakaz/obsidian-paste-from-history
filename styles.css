@@ -14,3 +14,9 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
+.historyViewDocking {
+	background-color: var(--background-secondary);
+	border-top: 2px solid var(--background-modifier-border-hover);
+	border-bottom: 1px solid var(--background-modifier-border-hover);
+}
