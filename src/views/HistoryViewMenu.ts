@@ -51,15 +51,15 @@ export class HistoryViewMenu implements HistoryView {
 		const documentFragment = new DocumentFragment();
 
 		const rowDiv = documentFragment.createDiv();
-		rowDiv.addClass("clipboardHistoryRecord");
+		rowDiv.addClass("pasteFromHistoryClipboardRecord");
 
 		const labelSpan = rowDiv.createSpan();
 		labelSpan.appendText(`${label}: `);
-		labelSpan.addClass("clipboardHistoryRecordLabel");
+		labelSpan.addClass("pasteFromHistoryClipboardRecordLabel");
 
 		const textSpan = rowDiv.createSpan();
 		textSpan.appendText(record.text.replace(/\n/g, "⏎"));
-		textSpan.addClass("clipboardHistoryRecordText");
+		textSpan.addClass("pasteFromHistoryClipboardRecordText");
 
 		item.setTitle(documentFragment);
 		item.onClick(() => pasteAction(record));

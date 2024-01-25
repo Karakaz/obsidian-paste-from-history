@@ -76,7 +76,7 @@ export class ClipboardHistoryPlugin extends Plugin {
 			if (this.settings.historyViewType === HistoryViewType.MENU) {
 				this.historyView = new HistoryViewMenu(this.clipboardHistoryService);
 			} else if (this.settings.historyViewType === HistoryViewType.DOCKED) {
-				this.historyView = new HistoryViewDocked();
+				this.historyView = new HistoryViewDocked(this.clipboardHistoryService, this.app);
 			} else {
 				throw new Error(`Unhandled HistoryViewType: ${this.settings.historyViewType}`);
 			}

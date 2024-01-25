@@ -1,22 +1,59 @@
-.clipboardHistoryRecord {
+.pasteFromHistoryClipboardRecord {
 	display: flex;
 }
 
-.clipboardHistoryRecordLabel {
+.pasteFromHistoryClipboardRecordLabel {
 	opacity: 70%;
 	position: relative;
 	left: -0.45em;
 }
 
-.clipboardHistoryRecordText {
+.pasteFromHistoryClipboardRecordText {
 	display: inline-block;
 	max-width: calc(max(min(50vw, 80ch), 30vw));
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-.historyViewDocking {
+.pasteFromHistoryViewDocked {
+	display: flex;
+	flex-direction: column;
 	background-color: var(--background-secondary);
-	border-top: 2px solid var(--background-modifier-border-hover);
-	border-bottom: 1px solid var(--background-modifier-border-hover);
+	border: 1px solid var(--background-modifier-border);
+	border-top: 0;
 }
+
+.pasteFromHistoryViewDockedHeading {
+	display: flex;
+	justify-content: center;
+	/* background-color: var(--background-modifier-border); */
+	font-size: xx-small;
+	letter-spacing: 0.1em;
+}
+
+.pasteFromHistoryViewDockedRecords {
+	display: flex;
+	flex-direction: column;
+	padding-left: 0.5em;
+}
+
+.pasteFromHistoryViewDockedRecord {
+	display: flex;
+	gap: 1em;
+}
+
+.pasteFromHistoryViewDockedRecord.selected {
+	background-color: var(--background-modifier-hover);
+}
+
+.pasteFromHistoryViewDockedRecordLabel {
+	opacity: 70%;
+}
+
+.pasteFromHistoryViewDockedRecordText {
+	display: inline-block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* var(--background-modifier-hover) */
