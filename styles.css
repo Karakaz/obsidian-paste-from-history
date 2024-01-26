@@ -19,14 +19,17 @@
 	display: flex;
 	flex-direction: column;
 	background-color: var(--background-secondary);
-	border: 1px solid var(--background-modifier-border);
-	border-top: 0;
+	border-top: 1px solid var(--background-modifier-border);
+	padding: 0 0.5rem;
+}
+
+.pasteFromHistoryViewDocked > hr {
+	margin: 0.3rem 0;
 }
 
 .pasteFromHistoryViewDockedHeading {
 	display: flex;
 	justify-content: center;
-	/* background-color: var(--background-modifier-border); */
 	font-size: xx-small;
 	letter-spacing: 0.1em;
 }
@@ -34,12 +37,15 @@
 .pasteFromHistoryViewDockedRecords {
 	display: flex;
 	flex-direction: column;
-	padding-left: 0.5em;
 }
 
 .pasteFromHistoryViewDockedRecord {
 	display: flex;
 	gap: 1em;
+	padding: 0.1em 0.5em;
+	border-radius: 0.25rem;
+	align-items: baseline;
+	font-size: small;
 }
 
 .pasteFromHistoryViewDockedRecord.selected {
@@ -52,8 +58,17 @@
 
 .pasteFromHistoryViewDockedRecordText {
 	display: inline-block;
+	text-wrap: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-/* var(--background-modifier-hover) */
+.pasteFromHistoryViewDockedPreview {
+	font-size: x-small;
+	padding-top: 0.5rem;
+}
+
+.pasteFromHistoryViewDockedPreview > textarea {
+	width: 100%;
+	resize: none;
+}

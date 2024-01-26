@@ -8,6 +8,8 @@ export class HistoryViewDocked implements HistoryView {
 	docking: HTMLDivElement;
 	recordRows: HTMLDivElement[];
 	selectedRow: number;
+	previewElement: HTMLElement;
+	editor: Editor;
 
 	constructor(private clipboardHistoryService: ClipboardHistoryService, private app: App) {}
 
@@ -15,37 +17,20 @@ export class HistoryViewDocked implements HistoryView {
 		return HistoryViewType.DOCKED;
 	}
 
-	close() {
+	close(focusEditor = true) {
 		if (this.docking) {
 			this.docking.detach();
 		}
 		document.removeEventListener("keydown", this.selectionListener);
+		document.removeEventListener("focusin", this.focusListener);
+		if (focusEditor && this.editor) {
+			this.editor.focus();
+		}
 	}
 
-	selectionListener = (event: KeyboardEvent) => {
-		if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-			this.recordRows[this.selectedRow].removeClass("selected");
-			if (event.key === "ArrowDown") {
-				this.selectedRow = Math.min(this.selectedRow + 1, this.recordRows.length - 1);
-			} else {
-				this.selectedRow = Math.max(this.selectedRow - 1, 0);
-			}
-			this.recordRows[this.selectedRow].addClass("selected");
-			event.preventDefault();
-			console.log("selectedRow: " + this.selectedRow);
-		}
-		if (event.key === "Enter") {
-			this.recordRows[this.selectedRow].click();
-			this.close();
-			event.preventDefault();
-		} else if (event.key === "Escape") {
-			this.close();
-			event.preventDefault();
-		}
-	};
-
 	open(editor: Editor, view: MarkdownView, pasteAction: (record: ClipboardRecord) => void) {
-		this.close();
+		this.close(false);
+		this.editor = editor;
 		this.docking = view.containerEl.createDiv();
 		this.docking.addClass("pasteFromHistoryViewDocked");
 
@@ -64,12 +49,18 @@ export class HistoryViewDocked implements HistoryView {
 			);
 		}
 
-		// const previewContainer = this.docking.createDiv();
-		this.docking.createSpan().appendText("Yo yo");
+		const previewContainer = this.docking.createDiv();
+		previewContainer.addClass("pasteFromHistoryViewDockedPreview");
+		this.previewElement = previewContainer.createEl("textarea", <DomElementInfo>{
+			attr: { rows: "6", disabled: true },
+		});
 
 		this.selectedRow = 0;
 		this.recordRows[this.selectedRow].addClass("selected");
+		this.previewElement.setText(records[this.selectedRow].text);
+		editor.blur();
 		document.addEventListener("keydown", this.selectionListener);
+		document.addEventListener("focusin", this.focusListener);
 	}
 
 	createRowForClipboardRecord(
@@ -91,4 +82,31 @@ export class HistoryViewDocked implements HistoryView {
 		textSpan.addClass("pasteFromHistoryViewDockedRecordText");
 		return rowDiv;
 	}
+
+	selectionListener = (event: KeyboardEvent) => {
+		if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+			this.recordRows[this.selectedRow].removeClass("selected");
+			if (event.key === "ArrowDown") {
+				this.selectedRow = Math.min(this.selectedRow + 1, this.recordRows.length - 1);
+			} else {
+				this.selectedRow = Math.max(this.selectedRow - 1, 0);
+			}
+			this.recordRows[this.selectedRow].addClass("selected");
+			this.previewElement.setText(this.clipboardHistoryService.getRecords()[this.selectedRow].text);
+			event.preventDefault();
+			event.stopPropagation();
+			console.log("selectedRow: " + this.selectedRow);
+		} else if (event.key === "Enter") {
+			this.recordRows[this.selectedRow].click();
+			this.close();
+			event.preventDefault();
+			event.stopPropagation();
+		} else if (event.key === "Escape") {
+			this.close();
+			event.preventDefault();
+			event.stopPropagation();
+		}
+	};
+
+	focusListener = () => this.close();
 }
