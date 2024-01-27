@@ -27,14 +27,26 @@ Removes all entries from the plugin's history of the clipboard.
 
 #### History limit
 
-You can adjust the limit of how many clipboard text events are tracked in the settings. The default is `16`.
+You can adjust the limit of how many clipboard text events are tracked in the settings. Defaults to `16`.
+
+#### History view
+
+Two modes for clipboard history view.
+
+- `hover` - Menu floating above the editor. (Default)
+- `docked` - Menu docked to the bottom of the editor.
+
+#### Preview lines
+
+_Supported by `Docked` view_
+
+Number of lines to reserve for multiline preview. Defaults to `6`.
 
 ## Limitations
 
 -   Obsidian does not have access to the OS's clipboard which means clipboard events happening outside of Obsidian are not tracked in this plugin's clipboard history.
 -   [Paste from clipboard history](#paste-from-clipboard-history) only works inside _editing view_.
 -   Only text content is supported currently.
--   Multiline text is displayed as _one_ line in preview.
 -   Clipboard history is kept in memory. Consequences:
     -   Clipboard history prior to plugin activation is not available.
     -   Clipboard history is lost between sessions.

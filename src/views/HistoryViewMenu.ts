@@ -10,9 +10,7 @@ export class HistoryViewMenu implements HistoryView {
 
 	constructor(private clipboardHistoryService: ClipboardHistoryService) {}
 
-	type() {
-		return HistoryViewType.MENU;
-	}
+	type = () => HistoryViewType.MENU;
 
 	close() {
 		if (this.displayedMenu) {
@@ -42,6 +40,10 @@ export class HistoryViewMenu implements HistoryView {
 		return menu;
 	}
 
+	setPreviewLines(numberOfLines: number) {
+		throw new Error("Unsupported operation");
+	}
+
 	private decorateItemWithClipboardRecord(
 		pasteAction: (record: ClipboardRecord) => void,
 		item: MenuItem,
@@ -51,15 +53,15 @@ export class HistoryViewMenu implements HistoryView {
 		const documentFragment = new DocumentFragment();
 
 		const rowDiv = documentFragment.createDiv();
-		rowDiv.addClass("pasteFromHistoryClipboardRecord");
+		rowDiv.addClass("pasteFromHistoryViewMenuRecord");
 
 		const labelSpan = rowDiv.createSpan();
 		labelSpan.appendText(`${label}: `);
-		labelSpan.addClass("pasteFromHistoryClipboardRecordLabel");
+		labelSpan.addClass("pasteFromHistoryViewMenuRecordLabel");
 
 		const textSpan = rowDiv.createSpan();
 		textSpan.appendText(record.text.replace(/\n/g, "⏎"));
-		textSpan.addClass("pasteFromHistoryClipboardRecordText");
+		textSpan.addClass("pasteFromHistoryViewMenuRecordText");
 
 		item.setTitle(documentFragment);
 		item.onClick(() => pasteAction(record));

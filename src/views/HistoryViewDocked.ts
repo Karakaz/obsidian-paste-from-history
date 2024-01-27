@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView } from "obsidian";
+import { Editor, MarkdownView } from "obsidian";
 import { ClipboardHistoryService } from "src/ClipboardHistoryService";
 import { ClipboardRecord } from "src/models/ClipboardRecord";
 import { HistoryView } from "src/models/HistoryView";
@@ -11,11 +11,9 @@ export class HistoryViewDocked implements HistoryView {
 	previewElement: HTMLElement;
 	editor: Editor;
 
-	constructor(private clipboardHistoryService: ClipboardHistoryService, private app: App) {}
+	constructor(private clipboardHistoryService: ClipboardHistoryService, private previewLines: number) {}
 
-	type() {
-		return HistoryViewType.DOCKED;
-	}
+	type = () => HistoryViewType.DOCKED;
 
 	close(focusEditor = true) {
 		if (this.docking) {
@@ -48,12 +46,13 @@ export class HistoryViewDocked implements HistoryView {
 				this.createRowForClipboardRecord(pasteAction, recordsContainer, records[index], index + 1)
 			);
 		}
-
-		const previewContainer = this.docking.createDiv();
-		previewContainer.addClass("pasteFromHistoryViewDockedPreview");
-		this.previewElement = previewContainer.createEl("textarea", <DomElementInfo>{
-			attr: { rows: "6", disabled: true },
-		});
+		if (this.previewLines) {
+			const previewContainer = this.docking.createDiv();
+			previewContainer.addClass("pasteFromHistoryViewDockedPreview");
+			this.previewElement = previewContainer.createEl("textarea", <DomElementInfo>{
+				attr: { rows: `${this.previewLines}`, disabled: true },
+			});
+		}
 
 		this.selectedRow = 0;
 		this.recordRows[this.selectedRow].addClass("selected");
@@ -63,7 +62,11 @@ export class HistoryViewDocked implements HistoryView {
 		document.addEventListener("focusin", this.focusListener);
 	}
 
-	createRowForClipboardRecord(
+	setPreviewLines(numberOfLines: number) {
+		this.previewLines = numberOfLines;
+	}
+
+	private createRowForClipboardRecord(
 		pasteAction: (record: ClipboardRecord) => void,
 		recordsContainer: HTMLDivElement,
 		record: ClipboardRecord,
@@ -83,7 +86,7 @@ export class HistoryViewDocked implements HistoryView {
 		return rowDiv;
 	}
 
-	selectionListener = (event: KeyboardEvent) => {
+	private selectionListener = (event: KeyboardEvent) => {
 		if (event.key === "ArrowDown" || event.key === "ArrowUp") {
 			this.recordRows[this.selectedRow].removeClass("selected");
 			if (event.key === "ArrowDown") {
@@ -108,5 +111,5 @@ export class HistoryViewDocked implements HistoryView {
 		}
 	};
 
-	focusListener = () => this.close();
+	private focusListener = () => this.close();
 }
