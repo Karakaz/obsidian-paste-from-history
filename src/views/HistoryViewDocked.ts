@@ -119,6 +119,7 @@ export class HistoryViewDocked implements HistoryView {
 	}
 
 	private calculateSelectedRowIndex(increment: boolean): number {
+		// eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
 		const currentSelected = this.selectedRow!;
 		if (increment) {
 			if (currentSelected >= this.recordRows.length - 1) {
