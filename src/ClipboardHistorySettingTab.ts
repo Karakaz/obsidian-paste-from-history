@@ -60,7 +60,7 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 			.setDesc("Clipboard history view modes")
 			.addDropdown((dropdown) =>
 				dropdown
-					.addOption(HistoryViewType.MENU, "Hover")
+					.addOption(HistoryViewType.HOVERED, "Hovered")
 					.addOption(HistoryViewType.DOCKED, "Docked")
 					.setValue(this.plugin.settings.historyViewType)
 					.onChange(async (value) => {
@@ -71,7 +71,7 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 						if (type === HistoryViewType.DOCKED) {
 							this.addPreviewLinesSetting();
 						} else {
-							this.containerEl.lastChild?.detach();
+							containerEl.lastChild?.detach();
 							this.previewLinesSetting = undefined;
 						}
 					})
@@ -81,7 +81,7 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 		}
 	}
 
-	addPreviewLinesSetting() {
+	private addPreviewLinesSetting() {
 		if (!this.previewLinesSetting) {
 			this.previewLinesSetting = new Setting(this.containerEl)
 				.setName(SettingName.PREVIEW_LINES)

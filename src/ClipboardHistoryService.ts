@@ -16,6 +16,10 @@ export class ClipboardHistoryService {
 		return this.records.getElements();
 	}
 
+	getRecord(index: number): ClipboardRecord {
+		return this.records.getElement(index);
+	}
+
 	putRecord(record: ClipboardRecord) {
 		const refreshed = this.records.refresh(record);
 		if (!refreshed) {

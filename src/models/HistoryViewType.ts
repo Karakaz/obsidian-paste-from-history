@@ -1,4 +1,4 @@
 export enum HistoryViewType {
-	MENU = "menu",
+	HOVERED = "hovered",
 	DOCKED = "docked",
 }

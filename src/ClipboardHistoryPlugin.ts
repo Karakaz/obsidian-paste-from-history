@@ -5,20 +5,15 @@ import { ClipboardHistoryService } from "./ClipboardHistoryService";
 import { PasteFromClipboardHistoryCommand } from "./commands/PasteFromClipboardHistoryCommand";
 import { ClearClipboardHistoryCommand } from "./commands/ClearClipboardHistoryCommand";
 import { HistoryViewType } from "./models/HistoryViewType";
-import { HistoryViewMenu } from "./views/HistoryViewMenu";
+import { HistoryViewHovered } from "./views/HistoryViewHovered";
 import { SettingName } from "./models/SettingName";
 import { HistoryView } from "./models/HistoryView";
 import { HistoryViewDocked } from "./views/HistoryViewDocked";
-
-interface ClipboardHistorySettings {
-	historyLimit: number;
-	historyViewType: HistoryViewType;
-	previewLines: number;
-}
+import { ClipboardHistorySettings } from "./models/ClipboardHistorySettings";
 
 const DEFAULT_SETTINGS: ClipboardHistorySettings = {
 	historyLimit: 16,
-	historyViewType: HistoryViewType.MENU,
+	historyViewType: HistoryViewType.HOVERED,
 	previewLines: 6,
 };
 
@@ -26,20 +21,14 @@ export class ClipboardHistoryPlugin extends Plugin {
 	settings: ClipboardHistorySettings;
 	clipboardHistoryService: ClipboardHistoryService;
 	pasteCommand: PasteFromClipboardHistoryCommand;
-	historyView?: HistoryView;
+	historyView: HistoryView;
 
 	async onload() {
 		await this.loadSettings();
 		this.addSettingTab(new ClipboardHistorySettingTab(this.app, this));
 		this.clipboardHistoryService = new ClipboardHistoryService(this.settings.historyLimit);
-
-		this.registerDomEvent(document, "copy", () => this.recordTextFromClipboard());
-		this.registerDomEvent(document, "cut", () => this.recordTextFromClipboard());
-
-		this.pasteCommand = new PasteFromClipboardHistoryCommand(this.clipboardHistoryService);
-		this.updateHistoryView();
-		this.addCommand(this.pasteCommand);
-		this.addCommand(new ClearClipboardHistoryCommand(this.clipboardHistoryService));
+		this.registerClipboardCopyCutEventListeners();
+		this.registerCommands();
 	}
 
 	async onunload() {
@@ -61,7 +50,7 @@ export class ClipboardHistoryPlugin extends Plugin {
 		} else if (changedSetting === SettingName.HISTORY_VIEW) {
 			this.updateHistoryView();
 		} else if (changedSetting === SettingName.PREVIEW_LINES) {
-			this.historyView?.setPreviewLines(this.settings.previewLines);
+			this.historyView.setPreviewLines(this.settings.previewLines);
 		}
 		await this.saveData(this.settings);
 	}
@@ -70,12 +59,23 @@ export class ClipboardHistoryPlugin extends Plugin {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 
-	private recordTextFromClipboard() {
-		navigator.clipboard.readText().then((text) => {
+	private registerClipboardCopyCutEventListeners() {
+		const recordTextFromClipboard = async () => {
+			const text = await navigator.clipboard.readText();
 			if (text) {
 				this.clipboardHistoryService.putRecord({ text: text });
 			}
-		});
+		};
+
+		this.registerDomEvent(document, "copy", recordTextFromClipboard);
+		this.registerDomEvent(document, "cut", recordTextFromClipboard);
+	}
+
+	private registerCommands() {
+		this.pasteCommand = new PasteFromClipboardHistoryCommand(this.clipboardHistoryService);
+		this.updateHistoryView();
+		this.addCommand(this.pasteCommand);
+		this.addCommand(new ClearClipboardHistoryCommand(this.clipboardHistoryService));
 	}
 
 	private updateHistoryView() {
@@ -83,8 +83,8 @@ export class ClipboardHistoryPlugin extends Plugin {
 			if (this.historyView) {
 				this.historyView.close();
 			}
-			if (this.settings.historyViewType === HistoryViewType.MENU) {
-				this.historyView = new HistoryViewMenu(this.clipboardHistoryService);
+			if (this.settings.historyViewType === HistoryViewType.HOVERED) {
+				this.historyView = new HistoryViewHovered(this.clipboardHistoryService);
 			} else if (this.settings.historyViewType === HistoryViewType.DOCKED) {
 				this.historyView = new HistoryViewDocked(this.clipboardHistoryService, this.settings.previewLines);
 			} else {

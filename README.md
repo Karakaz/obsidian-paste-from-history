@@ -33,7 +33,7 @@ You can adjust the limit of how many clipboard text events are tracked in the se
 
 Two modes for clipboard history view.
 
-- `hover` - Menu floating above the editor. (Default)
+- `hovered` - Menu floating above the editor. (Default)
 - `docked` - Menu docked to the bottom of the editor.
 
 #### Preview lines

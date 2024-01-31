@@ -5,12 +5,12 @@ import { HistoryView } from "src/models/HistoryView";
 import { EditorView } from "@codemirror/view";
 import { HistoryViewType } from "src/models/HistoryViewType";
 
-export class HistoryViewMenu implements HistoryView {
+export class HistoryViewHovered implements HistoryView {
 	displayedMenu?: Menu;
 
 	constructor(private clipboardHistoryService: ClipboardHistoryService) {}
 
-	type = () => HistoryViewType.MENU;
+	type = () => HistoryViewType.HOVERED;
 
 	close() {
 		if (this.displayedMenu) {
@@ -26,6 +26,10 @@ export class HistoryViewMenu implements HistoryView {
 		this.displayedMenu.showAtPosition(position);
 	}
 
+	setPreviewLines(numberOfLines: number) {
+		throw new Error("Unsupported operation");
+	}
+
 	private createMenu(pasteAction: (record: ClipboardRecord) => void): Menu {
 		const menu = new Menu();
 
@@ -38,10 +42,6 @@ export class HistoryViewMenu implements HistoryView {
 		menu.addItem((item) => item.setDisabled(true).setIcon("clipboard-paste").setTitle("Clipboard History"));
 
 		return menu;
-	}
-
-	setPreviewLines(numberOfLines: number) {
-		throw new Error("Unsupported operation");
 	}
 
 	private decorateItemWithClipboardRecord(

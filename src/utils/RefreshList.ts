@@ -21,6 +21,10 @@ export class RefreshList<T> {
 		return [...this.elements];
 	}
 
+	getElement(index: number): T {
+		return this.elements[index];
+	}
+
 	/**
 	 * Moves existing element to start of the list
 	 * @returns `true` if element exists in the list, `false` otherwise
