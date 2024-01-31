@@ -53,15 +53,15 @@ export class HistoryViewHovered implements HistoryView {
 		const documentFragment = new DocumentFragment();
 
 		const rowDiv = documentFragment.createDiv();
-		rowDiv.addClass("pasteFromHistoryViewMenuRecord");
+		rowDiv.addClass("pasteFromHistoryViewHoveredRecord");
 
 		const labelSpan = rowDiv.createSpan();
 		labelSpan.appendText(`${label}: `);
-		labelSpan.addClass("pasteFromHistoryViewMenuRecordLabel");
+		labelSpan.addClass("pasteFromHistoryViewHoveredRecordLabel");
 
 		const textSpan = rowDiv.createSpan();
 		textSpan.appendText(record.text.replace(/\n/g, "⏎"));
-		textSpan.addClass("pasteFromHistoryViewMenuRecordText");
+		textSpan.addClass("pasteFromHistoryViewHoveredRecordText");
 
 		item.setTitle(documentFragment);
 		item.onClick(() => pasteAction(record));

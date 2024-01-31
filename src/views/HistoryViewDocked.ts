@@ -7,18 +7,20 @@ import { HistoryViewType } from "src/models/HistoryViewType";
 export class HistoryViewDocked implements HistoryView {
 	containerElement: HTMLDivElement;
 	recordRows: HTMLDivElement[];
-	selectedRow: number;
 	editor: Editor;
+	selectedRow?: number;
 	previewElement?: HTMLElement;
 
 	private keySelectionListener = (event: KeyboardEvent) => {
 		if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-			const index = this.calculateSelectedRowIndex(event.key === "ArrowDown");
-			this.setSelectedRow(index);
+			if (this.selectedRow || this.selectedRow === 0) {
+				const index = this.calculateSelectedRowIndex(event.key === "ArrowDown");
+				this.setSelectedRow(index);
+			}
 			event.preventDefault();
 		} else if (event.key === "Enter") {
-			this.recordRows[this.selectedRow].click();
-			this.close();
+			this.getSelectedRow()?.click();
+			this.close(false);
 			event.preventDefault();
 		} else if (event.key === "Escape") {
 			this.close();
@@ -36,8 +38,12 @@ export class HistoryViewDocked implements HistoryView {
 		if (this.containerElement) {
 			this.containerElement.detach();
 		}
+		this.selectedRow = undefined;
+		this.previewElement = undefined;
+
 		document.removeEventListener("keydown", this.keySelectionListener);
 		document.removeEventListener("focusin", this.focusHasChangedListener);
+
 		if (focusEditor && this.editor) {
 			this.editor.focus();
 		}
@@ -46,6 +52,22 @@ export class HistoryViewDocked implements HistoryView {
 	open(editor: Editor, view: MarkdownView, pasteAction: (record: ClipboardRecord) => void) {
 		this.close(false);
 		this.editor = editor;
+
+		this.createElements(view, pasteAction);
+
+		if (this.clipboardHistoryService.hasRecords()) {
+			this.setSelectedRow(0);
+		}
+		editor.blur();
+		document.addEventListener("keydown", this.keySelectionListener);
+		document.addEventListener("focusin", this.focusHasChangedListener);
+	}
+
+	setPreviewLines(numberOfLines: number) {
+		this.previewLines = numberOfLines;
+	}
+
+	private createElements(view: MarkdownView, pasteAction: (record: ClipboardRecord) => void) {
 		this.containerElement = view.containerEl.createDiv();
 		this.containerElement.addClass("pasteFromHistoryViewDocked");
 
@@ -69,20 +91,7 @@ export class HistoryViewDocked implements HistoryView {
 			this.previewElement = previewContainer.createEl("textarea", <DomElementInfo>{
 				attr: { rows: `${this.previewLines}`, disabled: true },
 			});
-		} else {
-			this.previewElement = undefined;
 		}
-
-		this.selectedRow = 0;
-		this.recordRows[this.selectedRow].addClass("selected");
-		this.previewElement?.setText(records[this.selectedRow].text);
-		editor.blur();
-		document.addEventListener("keydown", this.keySelectionListener);
-		document.addEventListener("focusin", this.focusHasChangedListener);
-	}
-
-	setPreviewLines(numberOfLines: number) {
-		this.previewLines = numberOfLines;
 	}
 
 	private createRowForClipboardRecord(
@@ -93,7 +102,10 @@ export class HistoryViewDocked implements HistoryView {
 	): HTMLDivElement {
 		const rowDiv = recordsContainer.createDiv();
 		rowDiv.addClass("pasteFromHistoryViewDockedRecord");
-		rowDiv.onclick = () => pasteAction(record);
+		rowDiv.onclick = () => {
+			pasteAction(record);
+			this.editor.focus();
+		};
 		rowDiv.onmouseover = () => this.setSelectedRow(index);
 
 		const labelSpan = rowDiv.createSpan();
@@ -107,26 +119,33 @@ export class HistoryViewDocked implements HistoryView {
 	}
 
 	private calculateSelectedRowIndex(increment: boolean): number {
+		const currentSelected = this.selectedRow!;
 		if (increment) {
-			if (this.selectedRow >= this.recordRows.length - 1) {
+			if (currentSelected >= this.recordRows.length - 1) {
 				return 0;
 			} else {
-				return Math.min(this.selectedRow + 1, this.recordRows.length - 1);
+				return Math.min(currentSelected + 1, this.recordRows.length - 1);
 			}
 		} else {
-			if (this.selectedRow <= 0) {
+			if (currentSelected <= 0) {
 				return this.recordRows.length - 1;
 			} else {
-				return Math.max(this.selectedRow - 1, 0);
+				return Math.max(currentSelected - 1, 0);
 			}
 		}
 	}
 
 	private setSelectedRow(index: number) {
-		this.recordRows[this.selectedRow].removeClass("selected");
+		this.getSelectedRow()?.removeClass("selected");
 		this.selectedRow = index;
 		this.recordRows[this.selectedRow].addClass("selected");
 		const clipboardRecord = this.clipboardHistoryService.getRecord(this.selectedRow);
 		this.previewElement?.setText(clipboardRecord.text);
+	}
+
+	private getSelectedRow(): HTMLDivElement | undefined {
+		if (this.selectedRow || this.selectedRow === 0) {
+			return this.recordRows[this.selectedRow];
+		}
 	}
 }

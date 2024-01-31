@@ -17,6 +17,10 @@ export class RefreshList<T> {
 		}
 	}
 
+	isEmpty(): boolean {
+		return this.elements.length === 0;
+	}
+
 	getElements(): T[] {
 		return [...this.elements];
 	}

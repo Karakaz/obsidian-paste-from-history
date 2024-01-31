@@ -12,6 +12,10 @@ export class ClipboardHistoryService {
 		this.records.updateLimit(recordLimit);
 	}
 
+	hasRecords(): boolean {
+		return !this.records.isEmpty();
+	}
+
 	getRecords(): ClipboardRecord[] {
 		return this.records.getElements();
 	}

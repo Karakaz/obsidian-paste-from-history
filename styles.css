@@ -1,16 +1,16 @@
-/********  View Menu  *********/
+/********  View Hovered  *********/
 
-.pasteFromHistoryViewMenuRecord {
+.pasteFromHistoryViewHoveredRecord {
 	display: flex;
 }
 
-.pasteFromHistoryViewMenuRecordLabel {
+.pasteFromHistoryViewHoveredRecordLabel {
 	opacity: 70%;
 	position: relative;
 	left: -0.45em;
 }
 
-.pasteFromHistoryViewMenuRecordText {
+.pasteFromHistoryViewHoveredRecordText {
 	display: inline-block;
 	max-width: calc(max(min(50vw, 80ch), 30vw));
 	overflow: hidden;
@@ -20,6 +20,10 @@
 /********  View Docked  *********/
 
 .pasteFromHistoryViewDocked {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
 	display: flex;
 	flex-direction: column;
 	background-color: var(--background-secondary);
