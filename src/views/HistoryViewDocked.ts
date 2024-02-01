@@ -74,7 +74,7 @@ export class HistoryViewDocked implements HistoryView {
 		const headingContainer = this.containerElement.createDiv();
 		headingContainer.addClass("pasteFromHistoryViewDockedHeading");
 		const heading = headingContainer.createSpan();
-		heading.appendText("Clipboard History");
+		heading.appendText("Clipboard history");
 
 		const recordsContainer = this.containerElement.createDiv();
 		recordsContainer.addClass("pasteFromHistoryViewDockedRecords");

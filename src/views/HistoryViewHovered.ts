@@ -39,7 +39,7 @@ export class HistoryViewHovered implements HistoryView {
 		}
 
 		menu.addSeparator();
-		menu.addItem((item) => item.setDisabled(true).setIcon("clipboard-paste").setTitle("Clipboard History"));
+		menu.addItem((item) => item.setDisabled(true).setIcon("clipboard-paste").setTitle("Clipboard history"));
 
 		return menu;
 	}
