@@ -43,7 +43,7 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName(SettingName.HISTORY_LIMIT)
-			.setDesc("Upper limit for the amount of tracked clipboard events")
+			.setDesc("Upper limit for the amount of tracked clipboard events.")
 			.addSlider((slider) =>
 				slider
 					.setLimits(HISTORY_LIMIT_MIN, HISTORY_LIMIT_MAX, HISTORY_LIMIT_STEP)
@@ -57,7 +57,7 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName(SettingName.HISTORY_VIEW)
-			.setDesc("Clipboard history view modes")
+			.setDesc(this.createHistoryViewDescription())
 			.addDropdown((dropdown) =>
 				dropdown
 					.addOption(HistoryViewType.HOVERED, "Hovered")
@@ -81,11 +81,19 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 		}
 	}
 
+	private createHistoryViewDescription(): DocumentFragment {
+		const documentFragment = new DocumentFragment();
+		const ul = documentFragment.createEl("ul");
+		ul.createEl("li").setText("Hovered: Floating over the editor.");
+		ul.createEl("li").setText("Docked: Docked to the bottom of the editor.");
+		return documentFragment;
+	}
+
 	private addPreviewLinesSetting() {
 		if (!this.previewLinesSetting) {
 			this.previewLinesSetting = new Setting(this.containerEl)
 				.setName(SettingName.PREVIEW_LINES)
-				.setDesc("Number of lines to reserve for multiline preview")
+				.setDesc("Number of lines to reserve for multiline preview. Set to 0 to disable preview.")
 				.addSlider((slider) =>
 					slider
 						.setLimits(PREVIEW_LINES_MIN, PREVIEW_LINES_MAX, PREVIEW_LINES_STEP)

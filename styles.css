@@ -41,6 +41,7 @@
 .pasteFromHistoryViewDockedRecords {
 	display: flex;
 	flex-direction: column;
+	padding-bottom: 0.5rem;
 }
 
 .pasteFromHistoryViewDockedRecord {
@@ -69,7 +70,6 @@
 
 .pasteFromHistoryViewDockedPreview {
 	font-size: x-small;
-	padding-top: 0.5rem;
 }
 
 .pasteFromHistoryViewDockedPreview > textarea {
