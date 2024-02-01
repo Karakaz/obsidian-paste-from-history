@@ -36,7 +36,7 @@ Two modes for clipboard history view.
 - `hovered` - Menu floating above the editor. (Default)
 - `docked` - Menu docked to the bottom of the editor.
 
-#### Preview lines
+#### Lines in preview
 
 _Supported by `Docked` view_
 
