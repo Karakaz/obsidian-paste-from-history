@@ -27,6 +27,8 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 	}
 
 	hide() {
+		this.scrollThresholdSetting?.settingEl?.detach();
+		this.previewLinesSetting?.settingEl?.detach();
 		this.scrollThresholdSetting = undefined;
 		this.previewLinesSetting = undefined;
 	}
@@ -75,10 +77,9 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 						this.plugin.settings.historyViewType = type;
 						await this.plugin.saveSettings(SettingName.HISTORY_VIEW);
 						if (type === HistoryViewType.DOCKED) {
+							this.addScrollThresholdSetting();
 							this.addPreviewLinesSetting();
 						} else {
-							containerEl.lastChild?.detach();
-							containerEl.lastChild?.detach();
 							this.hide();
 						}
 					})
