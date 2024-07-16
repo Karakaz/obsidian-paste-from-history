@@ -4,11 +4,10 @@
 
 Text you `copy` or `cut` will be tracked. You then have the ability to `paste` text from those previous _clipboard events_.
 
-#### Previews
-__Docked view__
+#### Docked view
 ![Docked view](./example-docked-v1-2-0.jpg)
 
-__Hovered view__
+#### Hovered view
 ![Demo](./demo-v1-0-0.gif)
 
 ### Commands
