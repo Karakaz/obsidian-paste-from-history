@@ -3,6 +3,7 @@ import { ClipboardHistoryService } from "src/ClipboardHistoryService";
 import { ClipboardRecord } from "src/models/ClipboardRecord";
 import { HistoryView } from "src/models/HistoryView";
 import { HistoryViewType } from "src/models/HistoryViewType";
+import { SettingName } from "src/models/SettingName";
 
 export class HistoryViewDocked implements HistoryView {
 	containerElement: HTMLDivElement;
@@ -10,27 +11,13 @@ export class HistoryViewDocked implements HistoryView {
 	editor: Editor;
 	selectedRow?: number;
 	previewElement?: HTMLElement;
+	elementAddedObserver?: MutationObserver;
 
-	private keySelectionListener = (event: KeyboardEvent) => {
-		if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-			if (this.selectedRow || this.selectedRow === 0) {
-				const index = this.calculateSelectedRowIndex(event.key === "ArrowDown");
-				this.setSelectedRow(index);
-			}
-			event.preventDefault();
-		} else if (event.key === "Enter") {
-			this.getSelectedRow()?.click();
-			this.close(false);
-			event.preventDefault();
-		} else if (event.key === "Escape") {
-			this.close();
-			event.preventDefault();
-		}
-	};
-
-	private focusHasChangedListener = () => this.close();
-
-	constructor(private clipboardHistoryService: ClipboardHistoryService, private previewLines: number) {}
+	constructor(
+		private clipboardHistoryService: ClipboardHistoryService,
+		private scrollThreshold: number,
+		private previewLines: number
+	) {}
 
 	type = () => HistoryViewType.DOCKED;
 
@@ -38,14 +25,20 @@ export class HistoryViewDocked implements HistoryView {
 		if (this.containerElement) {
 			this.containerElement.detach();
 		}
+		this.recordRows = [];
 		this.selectedRow = undefined;
 		this.previewElement = undefined;
-
-		document.removeEventListener("keydown", this.keySelectionListener);
-		document.removeEventListener("focusin", this.focusHasChangedListener);
+		this.disposeElementAddedObserver();
 
 		if (focusEditor && this.editor) {
 			this.editor.focus();
+		}
+	}
+
+	disposeElementAddedObserver() {
+		if (this.elementAddedObserver) {
+			this.elementAddedObserver.disconnect();
+			this.elementAddedObserver = undefined;
 		}
 	}
 
@@ -58,26 +51,47 @@ export class HistoryViewDocked implements HistoryView {
 		if (this.clipboardHistoryService.hasRecords()) {
 			this.setSelectedRow(0);
 		}
-		editor.blur();
-		document.addEventListener("keydown", this.keySelectionListener);
-		document.addEventListener("focusin", this.focusHasChangedListener);
 	}
 
-	setPreviewLines(numberOfLines: number) {
-		this.previewLines = numberOfLines;
+	onSettingChanged(setting: SettingName, value: number) {
+		switch (setting) {
+			case SettingName.PREVIEW_LINES:
+				this.previewLines = value;
+				break;
+			case SettingName.SCROLL_THRESHOLD:
+				this.scrollThreshold = value;
+				break;
+			default:
+				break;
+		}
 	}
 
 	private createElements(view: MarkdownView, pasteAction: (record: ClipboardRecord) => void) {
 		this.containerElement = view.containerEl.createDiv();
 		this.containerElement.addClass("pasteFromHistoryViewDocked");
 
-		const headingContainer = this.containerElement.createDiv();
-		headingContainer.addClass("pasteFromHistoryViewDockedHeading");
-		const heading = headingContainer.createSpan();
-		heading.appendText("Clipboard history");
+		this.createHeadingElement();
 
+		this.createRecordsElements(pasteAction);
+
+		if (this.previewLines > 0) {
+			this.createPreviewElement();
+		}
+	}
+
+	private createHeadingElement() {
+		const heading = this.containerElement.createSpan();
+		heading.appendText("Clipboard history");
+		heading.addClass("pasteFromHistoryViewDockedHeading");
+	}
+
+	private createRecordsElements(pasteAction: (record: ClipboardRecord) => void) {
 		const recordsContainer = this.containerElement.createDiv();
 		recordsContainer.addClass("pasteFromHistoryViewDockedRecords");
+		recordsContainer.setAttribute("tabindex", "-1");
+		recordsContainer.addEventListener("blur", () => this.close());
+		recordsContainer.addEventListener("keydown", (event: KeyboardEvent) => this.keySelectionListener(event));
+
 		const records = this.clipboardHistoryService.getRecords();
 		this.recordRows = [];
 		for (let index = 0; index < records.length; index++) {
@@ -85,13 +99,30 @@ export class HistoryViewDocked implements HistoryView {
 				this.createRowForClipboardRecord(pasteAction, recordsContainer, records[index], index)
 			);
 		}
-		if (this.previewLines > 0) {
-			const previewContainer = this.containerElement.createDiv();
-			previewContainer.addClass("pasteFromHistoryViewDockedPreview");
-			this.previewElement = previewContainer.createEl("textarea", <DomElementInfo>{
-				attr: { rows: `${this.previewLines}`, disabled: true },
-			});
+
+		this.addElementAddedObserver(recordsContainer);
+	}
+
+	private keySelectionListener(event: KeyboardEvent): boolean {
+		if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+			if (this.selectedRow || this.selectedRow === 0) {
+				const index = this.calculateSelectedRowIndex(event.key === "ArrowDown");
+				this.setSelectedRow(index);
+				this.recordRows[index].scrollIntoView();
+				event.preventDefault();
+			}
+			return false;
+		} else if (event.key === "Enter" || event.key === " ") {
+			this.getSelectedRow()?.click();
+			this.close(false);
+			event.preventDefault();
+			return false;
+		} else if (event.key === "Escape") {
+			this.close();
+			event.preventDefault();
+			return false;
 		}
+		return true;
 	}
 
 	private createRowForClipboardRecord(
@@ -102,11 +133,16 @@ export class HistoryViewDocked implements HistoryView {
 	): HTMLDivElement {
 		const rowDiv = recordsContainer.createDiv();
 		rowDiv.addClass("pasteFromHistoryViewDockedRecord");
-		rowDiv.onclick = () => {
+		rowDiv.setAttribute("selected", "false");
+		rowDiv.addEventListener("click", () => {
 			pasteAction(record);
-			this.editor.focus();
-		};
-		rowDiv.onmouseover = () => this.setSelectedRow(index);
+			this.close();
+		});
+		rowDiv.addEventListener("mousemove", () => {
+			if (this.selectedRow !== index) {
+				this.setSelectedRow(index);
+			}
+		});
 
 		const labelSpan = rowDiv.createSpan();
 		labelSpan.appendText(`${index + 1}:`);
@@ -116,6 +152,37 @@ export class HistoryViewDocked implements HistoryView {
 		textSpan.appendText(record.text.replace(/\n/g, "⏎"));
 		textSpan.addClass("pasteFromHistoryViewDockedRecordText");
 		return rowDiv;
+	}
+
+	private addElementAddedObserver(recordsContainer: HTMLDivElement) {
+		this.elementAddedObserver = new MutationObserver(() => {
+			if (this.scrollThreshold > 0 && document.body.contains(this.recordRows[0])) {
+				const recordPadding = 3;
+				const itemHeight = this.recordRows[0].innerHeight + recordPadding;
+				const recordsBottomPadding = 8;
+				const offsetToRevealNextItem = 4;
+				const maxHeight = itemHeight * this.scrollThreshold + recordsBottomPadding + offsetToRevealNextItem;
+				recordsContainer.style.maxHeight = `${maxHeight}px`;
+			}
+			if (document.body.contains(recordsContainer)) {
+				recordsContainer.focus();
+				this.disposeElementAddedObserver();
+			}
+		});
+		this.elementAddedObserver.observe(document.body, {
+			attributes: false,
+			childList: true,
+			characterData: false,
+			subtree: true,
+		});
+	}
+
+	private createPreviewElement() {
+		const previewContainer = this.containerElement.createDiv();
+		previewContainer.addClass("pasteFromHistoryViewDockedPreview");
+		this.previewElement = previewContainer.createEl("textarea", <DomElementInfo>{
+			attr: { rows: `${this.previewLines}`, disabled: true },
+		});
 	}
 
 	private calculateSelectedRowIndex(increment: boolean): number {
@@ -137,9 +204,9 @@ export class HistoryViewDocked implements HistoryView {
 	}
 
 	private setSelectedRow(index: number) {
-		this.getSelectedRow()?.removeClass("selected");
+		this.getSelectedRow()?.setAttribute("selected", "false");
 		this.selectedRow = index;
-		this.recordRows[this.selectedRow].addClass("selected");
+		this.recordRows[this.selectedRow].setAttribute("selected", "true");
 		const clipboardRecord = this.clipboardHistoryService.getRecord(this.selectedRow);
 		this.previewElement?.setText(clipboardRecord.text);
 	}

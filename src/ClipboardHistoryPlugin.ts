@@ -12,10 +12,11 @@ import { HistoryViewDocked } from "./views/HistoryViewDocked";
 import { ClipboardHistorySettings } from "./models/ClipboardHistorySettings";
 
 const DEFAULT_SETTINGS: ClipboardHistorySettings = {
-	historyLimit: 16,
-	historyViewType: HistoryViewType.HOVERED,
+	historyLimit: 20,
+	historyViewType: HistoryViewType.DOCKED,
+	scrollThreshold: 10,
 	previewLines: 6,
-};
+} as const;
 
 export class ClipboardHistoryPlugin extends Plugin {
 	settings: ClipboardHistorySettings;
@@ -49,8 +50,10 @@ export class ClipboardHistoryPlugin extends Plugin {
 			this.clipboardHistoryService.updateRecordLimit(this.settings.historyLimit);
 		} else if (changedSetting === SettingName.HISTORY_VIEW) {
 			this.updateHistoryView();
+		} else if (changedSetting === SettingName.SCROLL_THRESHOLD) {
+			this.historyView.onSettingChanged(SettingName.SCROLL_THRESHOLD, this.settings.scrollThreshold);
 		} else if (changedSetting === SettingName.PREVIEW_LINES) {
-			this.historyView.setPreviewLines(this.settings.previewLines);
+			this.historyView.onSettingChanged(SettingName.PREVIEW_LINES, this.settings.previewLines);
 		}
 		await this.saveData(this.settings);
 	}
@@ -86,7 +89,11 @@ export class ClipboardHistoryPlugin extends Plugin {
 			if (this.settings.historyViewType === HistoryViewType.HOVERED) {
 				this.historyView = new HistoryViewHovered(this.clipboardHistoryService);
 			} else if (this.settings.historyViewType === HistoryViewType.DOCKED) {
-				this.historyView = new HistoryViewDocked(this.clipboardHistoryService, this.settings.previewLines);
+				this.historyView = new HistoryViewDocked(
+					this.clipboardHistoryService,
+					this.settings.scrollThreshold,
+					this.settings.previewLines
+				);
 			} else {
 				throw new Error(`Unhandled HistoryViewType: ${this.settings.historyViewType}`);
 			}

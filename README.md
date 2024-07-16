@@ -4,6 +4,11 @@
 
 Text you `copy` or `cut` will be tracked. You then have the ability to `paste` text from those previous _clipboard events_.
 
+#### Previews
+__Docked view__
+![Docked view](./example-docked-v1-2-0.jpg)
+
+__Hovered view__
 ![Demo](./demo-v1-0-0.gif)
 
 ### Commands
@@ -27,18 +32,24 @@ Removes all entries from the plugin's history of the clipboard.
 
 #### History limit
 
-You can adjust the limit of how many clipboard text events are tracked in the settings. Defaults to `16`.
+You can adjust the limit of how many clipboard text events are tracked in the settings. Defaults to `20`.
 
 #### History view
 
 Two modes for clipboard history view.
 
-- `hovered` - Menu floating above the editor. (Default)
-- `docked` - Menu docked to the bottom of the editor.
+- `hovered` - Menu floating above the editor.
+- `docked` - Menu docked to the bottom of the editor. (Default)
+
+#### Scroll threshold
+
+_Supported by `docked` view_
+
+Number of visible clipboard items before scrolling. Defaults to `10`.
 
 #### Lines in preview
 
-_Supported by `Docked` view_
+_Supported by `docked` view_
 
 Number of lines to reserve for multiline preview. Defaults to `6`.
 

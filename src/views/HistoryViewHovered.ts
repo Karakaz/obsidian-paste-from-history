@@ -4,6 +4,7 @@ import { ClipboardRecord } from "src/models/ClipboardRecord";
 import { HistoryView } from "src/models/HistoryView";
 import { EditorView } from "@codemirror/view";
 import { HistoryViewType } from "src/models/HistoryViewType";
+import { SettingName } from "src/models/SettingName";
 
 export class HistoryViewHovered implements HistoryView {
 	displayedMenu?: Menu;
@@ -26,7 +27,7 @@ export class HistoryViewHovered implements HistoryView {
 		this.displayedMenu.showAtPosition(position);
 	}
 
-	setPreviewLines(numberOfLines: number) {
+	onSettingChanged(setting: SettingName, value: number) {
 		throw new Error("Unsupported operation");
 	}
 

@@ -8,12 +8,17 @@ const HISTORY_LIMIT_MIN = 4;
 const HISTORY_LIMIT_MAX = 40;
 const HISTORY_LIMIT_STEP = 2;
 
+const SCROLL_THRESHOLD_MIN = 0;
+const SCROLL_THRESHOLD_MAX = 20;
+const SCROLL_THRESHOLD_STEP = 1;
+
 const PREVIEW_LINES_MIN = 0;
 const PREVIEW_LINES_MAX = 20;
 const PREVIEW_LINES_STEP = 1;
 
 export class ClipboardHistorySettingTab extends PluginSettingTab {
 	plugin: ClipboardHistoryPlugin;
+	scrollThresholdSetting?: Setting;
 	previewLinesSetting?: Setting;
 
 	constructor(app: App, plugin: ClipboardHistoryPlugin) {
@@ -22,6 +27,7 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 	}
 
 	hide() {
+		this.scrollThresholdSetting = undefined;
 		this.previewLinesSetting = undefined;
 	}
 
@@ -72,11 +78,13 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 							this.addPreviewLinesSetting();
 						} else {
 							containerEl.lastChild?.detach();
-							this.previewLinesSetting = undefined;
+							containerEl.lastChild?.detach();
+							this.hide();
 						}
 					})
 			);
 		if (this.plugin.settings.historyViewType === HistoryViewType.DOCKED) {
+			this.addScrollThresholdSetting();
 			this.addPreviewLinesSetting();
 		}
 	}
@@ -87,6 +95,26 @@ export class ClipboardHistorySettingTab extends PluginSettingTab {
 		ul.createEl("li").setText("Hovered: Floating over the editor.");
 		ul.createEl("li").setText("Docked: Docked to the bottom of the editor.");
 		return documentFragment;
+	}
+
+	private addScrollThresholdSetting() {
+		if (!this.scrollThresholdSetting) {
+			this.scrollThresholdSetting = new Setting(this.containerEl)
+				.setName(SettingName.SCROLL_THRESHOLD)
+				.setDesc(
+					"Number of visible clipboard items before scrolling. Set to 0 to show all instead of scrolling."
+				)
+				.addSlider((slider) =>
+					slider
+						.setLimits(SCROLL_THRESHOLD_MIN, SCROLL_THRESHOLD_MAX, SCROLL_THRESHOLD_STEP)
+						.setValue(this.plugin.settings.scrollThreshold)
+						.setDynamicTooltip()
+						.onChange(async (value) => {
+							this.plugin.settings.scrollThreshold = value;
+							await this.plugin.saveSettings(SettingName.SCROLL_THRESHOLD);
+						})
+				);
+		}
 	}
 
 	private addPreviewLinesSetting() {
