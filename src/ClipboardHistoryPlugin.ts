@@ -63,10 +63,10 @@ export class ClipboardHistoryPlugin extends Plugin {
 	}
 
 	private registerClipboardCopyCutEventListeners() {
-		const recordTextFromClipboard = async () => {
-			const text = await navigator.clipboard.readText();
+		const recordTextFromClipboard = async (clipboardEvent: ClipboardEvent) => {
+			const text = clipboardEvent.clipboardData?.getData("text/plain");
 			if (text) {
-				this.clipboardHistoryService.putRecord({ text: text });
+				this.clipboardHistoryService.putRecord({ text });
 			}
 		};
 
