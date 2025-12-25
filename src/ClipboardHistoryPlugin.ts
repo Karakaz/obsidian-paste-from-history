@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { Plugin, WorkspaceWindow } from "obsidian";
 
 import { ClipboardHistorySettingTab } from "./ClipboardHistorySettingTab";
 import { ClipboardHistoryService } from "./ClipboardHistoryService";
@@ -72,6 +72,22 @@ export class ClipboardHistoryPlugin extends Plugin {
 
 		this.registerDomEvent(document, "copy", recordTextFromClipboard);
 		this.registerDomEvent(document, "cut", recordTextFromClipboard);
+
+		const registerDomEventsOnWindowOpen = (_: WorkspaceWindow, window: Window) => {
+			this.registerDomEvent(window.document, "copy", recordTextFromClipboard);
+			this.registerDomEvent(window.document, "cut", recordTextFromClipboard);
+		};
+
+		const unregisterDomEventsOnWindowClose = (_: WorkspaceWindow, window: Window) => {
+			window.document.removeEventListener("copy", recordTextFromClipboard);
+			window.document.removeEventListener("cut", recordTextFromClipboard);
+		};
+
+		const windowOpenEventRef = this.app.workspace.on("window-open", registerDomEventsOnWindowOpen);
+		const windowCloseEventRef = this.app.workspace.on("window-close", unregisterDomEventsOnWindowClose);
+
+		this.registerEvent(windowOpenEventRef);
+		this.registerEvent(windowCloseEventRef);
 	}
 
 	private registerCommands() {

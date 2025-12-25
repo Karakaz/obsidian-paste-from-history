@@ -6,12 +6,16 @@ import { HistoryViewType } from "src/models/HistoryViewType";
 import { SettingName } from "src/models/SettingName";
 
 export class HistoryViewDocked implements HistoryView {
+	doc: Document;
 	containerElement: HTMLDivElement;
+	recordsContainer: HTMLDivElement;
 	recordRows: HTMLDivElement[];
 	editor: Editor;
 	selectedRow?: number;
 	previewElement?: HTMLElement;
 	elementAddedObserver?: MutationObserver;
+
+	onBlur = () => this.close();
 
 	constructor(
 		private clipboardHistoryService: ClipboardHistoryService,
@@ -22,7 +26,8 @@ export class HistoryViewDocked implements HistoryView {
 	type = () => HistoryViewType.DOCKED;
 
 	close(focusEditor = true) {
-		if (this.containerElement) {
+		if (this.containerElement && this.recordsContainer) {
+			this.recordsContainer.removeEventListener("blur", this.onBlur);
 			this.containerElement.detach();
 		}
 		this.recordRows = [];
@@ -45,7 +50,7 @@ export class HistoryViewDocked implements HistoryView {
 	open(editor: Editor, view: MarkdownView, pasteAction: (record: ClipboardRecord) => void) {
 		this.close(false);
 		this.editor = editor;
-
+		this.doc = view.containerEl.ownerDocument;
 		this.createElements(view, pasteAction);
 
 		if (this.clipboardHistoryService.hasRecords()) {
@@ -86,21 +91,21 @@ export class HistoryViewDocked implements HistoryView {
 	}
 
 	private createRecordsElements(pasteAction: (record: ClipboardRecord) => void) {
-		const recordsContainer = this.containerElement.createDiv();
-		recordsContainer.addClass("pasteFromHistoryViewDockedRecords");
-		recordsContainer.setAttribute("tabindex", "-1");
-		recordsContainer.addEventListener("blur", () => this.close());
-		recordsContainer.addEventListener("keydown", (event: KeyboardEvent) => this.keySelectionListener(event));
+		this.recordsContainer = this.containerElement.createDiv();
+		this.recordsContainer.addClass("pasteFromHistoryViewDockedRecords");
+		this.recordsContainer.setAttribute("tabindex", "-1");
+		this.recordsContainer.addEventListener("blur", this.onBlur);
+		this.recordsContainer.addEventListener("keydown", (event: KeyboardEvent) => this.keySelectionListener(event));
 
 		const records = this.clipboardHistoryService.getRecords();
 		this.recordRows = [];
 		for (let index = 0; index < records.length; index++) {
 			this.recordRows.push(
-				this.createRowForClipboardRecord(pasteAction, recordsContainer, records[index], index)
+				this.createRowForClipboardRecord(pasteAction, records[index], index)
 			);
 		}
 
-		this.addElementAddedObserver(recordsContainer);
+		this.addElementAddedObserver();
 	}
 
 	private keySelectionListener(event: KeyboardEvent): boolean {
@@ -127,11 +132,10 @@ export class HistoryViewDocked implements HistoryView {
 
 	private createRowForClipboardRecord(
 		pasteAction: (record: ClipboardRecord) => void,
-		recordsContainer: HTMLDivElement,
 		record: ClipboardRecord,
 		index: number
 	): HTMLDivElement {
-		const rowDiv = recordsContainer.createDiv();
+		const rowDiv = this.recordsContainer.createDiv();
 		rowDiv.addClass("pasteFromHistoryViewDockedRecord");
 		rowDiv.setAttribute("selected", "false");
 		rowDiv.addEventListener("click", () => {
@@ -154,22 +158,22 @@ export class HistoryViewDocked implements HistoryView {
 		return rowDiv;
 	}
 
-	private addElementAddedObserver(recordsContainer: HTMLDivElement) {
+	private addElementAddedObserver() {
 		this.elementAddedObserver = new MutationObserver(() => {
-			if (this.scrollThreshold > 0 && document.body.contains(this.recordRows[0])) {
+			if (this.scrollThreshold > 0 && this.doc.body.contains(this.recordRows[0])) {
 				const recordPadding = 3;
 				const itemHeight = this.recordRows[0].innerHeight + recordPadding;
 				const recordsBottomPadding = 8;
 				const offsetToRevealNextItem = 4;
 				const maxHeight = itemHeight * this.scrollThreshold + recordsBottomPadding + offsetToRevealNextItem;
-				recordsContainer.style.maxHeight = `${maxHeight}px`;
+				this.recordsContainer.style.maxHeight = `${maxHeight}px`;
 			}
-			if (document.body.contains(recordsContainer)) {
-				recordsContainer.focus();
+			if (this.doc.body.contains(this.recordsContainer)) {
+				this.recordsContainer.focus();
 				this.disposeElementAddedObserver();
 			}
 		});
-		this.elementAddedObserver.observe(document.body, {
+		this.elementAddedObserver.observe(this.doc.body, {
 			attributes: false,
 			childList: true,
 			characterData: false,
