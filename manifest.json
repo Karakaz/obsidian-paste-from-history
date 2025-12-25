@@ -1,7 +1,7 @@
 {
 	"id": "paste-from-history",
 	"name": "Paste From History",
-	"version": "1.2.1",
+	"version": "1.3.0",
 	"minAppVersion": "0.15.0",
 	"description": "Paste from the editor's recent clipboard history.",
 	"author": "Daniel Karakka",
