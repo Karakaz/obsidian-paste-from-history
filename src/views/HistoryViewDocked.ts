@@ -122,6 +122,13 @@ export class HistoryViewDocked implements HistoryView {
 			this.close(false);
 			event.preventDefault();
 			return false;
+		} else if (/^[1-9]$/.test(event.key)) {
+			const index = parseInt(event.key, 10) - 1;
+			if (index < this.recordRows.length) {
+				this.recordRows[index].click();
+				this.close(false);
+				event.preventDefault();
+			}
 		} else if (event.key === "Escape") {
 			this.close();
 			event.preventDefault();
